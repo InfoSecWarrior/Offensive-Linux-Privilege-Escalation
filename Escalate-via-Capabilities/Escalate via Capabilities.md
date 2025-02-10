@@ -8,7 +8,7 @@ In This  we are having only capabilities by which, we can `escalate` more or les
 	- [Finding All Binaries with Capabilities](#**Finding%20All%20Binaries%20with%20Capabilities**)
 	- [Confirming the Capability](#**Confirming%20the%20Capability**)
 	- [Removing the Capability](#**Removing%20the%20Capability**)
-- [**Common Capabilities That Can Lead to Privilege Escalation**](#**Common%20Capabilities%20That%20Can%20Lead%20to%20Privilege%20Escalation**) 
+- [Common Capabilities That Can Lead to Privilege Escalation](#**Common%20Capabilities%20That%20Can%20Lead%20to%20Privilege%20Escalation**) 
 	- [cap_setuid](#cap_setuid)
 	- [cap_setgid](#cap_setgid)
 	- [cap_dac_read_search](#cap_dac_read_search)
